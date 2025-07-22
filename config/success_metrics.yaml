@@ -1,0 +1,4 @@
+# Success metrics for Wealth Machine performance
+opportunities_per_week: 5
+reasoning_accuracy: 0.9
+failure_probability_threshold: 0.0001
