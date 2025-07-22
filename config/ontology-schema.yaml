@@ -1,0 +1,103 @@
+# Ontology schema for Wealth Machine
+# Defines entities and relationships for digital business opportunities
+
+entities:
+  Opportunity:
+    description: "A potential digital business venture or idea"
+    properties:
+      id: {type: uuid, primary: true}
+      name: {type: string}
+      description: {type: string}
+      status: {type: string}
+      created_at: {type: datetime}
+      updated_at: {type: datetime}
+    relationships:
+      - type: IN_MARKET
+        target: Market
+      - type: TARGETS_COMPANY
+        target: Company
+      - type: INITIATED_BY
+        target: Person
+      - type: RELATED_TO
+        target: Opportunity
+
+  Market:
+    description: "A market or industry segment"
+    properties:
+      id: {type: uuid, primary: true}
+      name: {type: string}
+      sector: {type: string}
+      description: {type: string}
+    relationships:
+      - type: CONTAINS_COMPANY
+        target: Company
+
+  Company:
+    description: "A business entity"
+    properties:
+      id: {type: uuid, primary: true}
+      name: {type: string}
+      industry: {type: string}
+      revenue: {type: float}
+    relationships:
+      - type: OPERATES_IN
+        target: Market
+      - type: EMPLOYS
+        target: Person
+
+  Person:
+    description: "An individual associated with opportunities or companies"
+    properties:
+      id: {type: uuid, primary: true}
+      name: {type: string}
+      role: {type: string}
+    relationships:
+      - type: WORKS_AT
+        target: Company
+      - type: INITIATES
+        target: Opportunity
+
+  Product:
+    description: "A product or service offered"
+    properties:
+      id: {type: uuid, primary: true}
+      name: {type: string}
+      category: {type: string}
+    relationships:
+      - type: BELONGS_TO
+        target: Company
+
+  Risk:
+    description: "A risk associated with an opportunity"
+    properties:
+      id: {type: uuid, primary: true}
+      name: {type: string}
+      severity: {type: integer}
+      description: {type: string}
+    relationships:
+      - type: AFFECTS
+        target: Opportunity
+
+relationships:
+  IN_MARKET:
+    description: "Opportunity operates in a Market"
+  TARGETS_COMPANY:
+    description: "Opportunity targets a Company"
+  INITIATED_BY:
+    description: "Opportunity is initiated by a Person"
+  RELATED_TO:
+    description: "Opportunity relates to another Opportunity"
+  CONTAINS_COMPANY:
+    description: "Market contains Company"
+  OPERATES_IN:
+    description: "Company operates in a Market"
+  EMPLOYS:
+    description: "Company employs Person"
+  WORKS_AT:
+    description: "Person works at Company"
+  INITIATES:
+    description: "Person initiates Opportunity"
+  BELONGS_TO:
+    description: "Product belongs to Company"
+  AFFECTS:
+    description: "Risk affects Opportunity"
