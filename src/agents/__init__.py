@@ -6,3 +6,5 @@ from .compliance import ComplianceAgent, ComplianceAgentConfig  # noqa: F401
 from .financial import FinancialAgent, FinancialAgentConfig  # noqa: F401
 from .growth import GrowthAgent, GrowthAgentConfig  # noqa: F401
 from .reinforcement_agent import ReinforcementAgent  # noqa: F401
+
+from .meta_agent import MetaAgent, MetaAgentConfig  # noqa: F401
