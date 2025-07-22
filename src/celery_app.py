@@ -17,7 +17,9 @@ from .agents.compliance import ComplianceAgent
 from .agents.base import AgentContext
 from .core.knowledge_graph import KnowledgeGraph, KnowledgeGraphConfig
 from .agents.financial import FinancialAgent, FinancialAgentConfig
+
 from .agents.growth import GrowthAgent, GrowthAgentConfig
+from .agents.meta_agent import MetaAgent, MetaAgentConfig  # noqa: F401
 
 
 # Instantiate Celery with broker and backend from environment variables
@@ -68,6 +70,13 @@ def run_growth_agent() -> None:
     """Celery task to run the growth agent once."""
     context = _get_default_context()
     agent = GrowthAgent(context)
+
+            
+@celery_app.task(name="agents.run_meta")
+def run_meta_agent() -> None:
+    """Celery task to run the meta agent once."""
+    context = _get_default_context()
+    agent = MetaAgent(context)
     asyncio.run(agent.run())
 
 
@@ -80,4 +89,6 @@ def run_all_agents() -> None:
     run_financial_agent.delay()
     run_growth_agent.delay()
         run_compliance_agent.delay()
+    run_meta_agent.delay()
+
     run_compliance_agent.delay()
