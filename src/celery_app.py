@@ -1,4 +1,4 @@
-"""
+            """
 Celery application for orchestrating background tasks in the Wealth Machine project.
 
 This module defines Celery tasks that wrap the asynchronous agents, allowing
@@ -16,6 +16,9 @@ from .agents.data_processing import DataProcessingAgent
 from .agents.compliance import ComplianceAgent
 from .agents.base import AgentContext
 from .core.knowledge_graph import KnowledgeGraph, KnowledgeGraphConfig
+from .agents.financial import FinancialAgent, FinancialAgentConfig
+from .agents.growth import GrowthAgent, GrowthAgentConfig
+
 
 # Instantiate Celery with broker and backend from environment variables
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
@@ -52,9 +55,21 @@ def run_data_processing_agent() -> None:
 @celery_app.task(name="agents.run_compliance")
 def run_compliance_agent() -> None:
     """Celery task to run the compliance agent once."""
+    context = _get_defXault_context()
+@celery_app.task(name="agents.run_financial")
+def run_financial_agent() -> None:
+    """Celery task to run the financial agent once."""
     context = _get_default_context()
-    agent = ComplianceAgent(context)
+    agent = FinancialAgent(context)
     asyncio.run(agent.run())
+
+@celery_app.task(name="agents.run_growth")
+def run_growth_agent() -> None:
+    """Celery task to run the growth agent once."""
+    context = _get_default_context()
+    agent = GrowthAgent(context)
+    asyncio.run(agent.run())
+
 
 
 @celery_app.task(name="agents.run_all")
@@ -62,4 +77,7 @@ def run_all_agents() -> None:
     """Run all agents sequentially. Useful for periodic scheduling."""
     run_market_intelligence_agent.delay()
     run_data_processing_agent.delay()
+    run_financial_agent.delay()
+    run_growth_agent.delay()
+        run_compliance_agent.delay()
     run_compliance_agent.delay()
