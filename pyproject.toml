@@ -3,6 +3,7 @@ name = "wealth_machine"
 version = "0.1.0"
 description = "AI-driven wealth machine platform"
 authors = ["Alfonso Lopez <keyalfonsolopez@example.com>"]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -20,4 +21,4 @@ psycopg2-binary = "^2.9"
 prefect = "^2.15"
 
 prometheus-client = "^0.22.1"
-langchain-openai = "^0.3.28"
+langchain-openai = "^0.0.7"
