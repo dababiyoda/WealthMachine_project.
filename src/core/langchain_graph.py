@@ -3,11 +3,8 @@ from __future__ import annotations
 import os
 from typing import Any, Dict
 
-from langchain.graphs import Neo4jGraph
-from langchain.chains import GraphCypherQAChain
-from langchain.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
 from langchain.llms.base import BaseLLM
+from langchain.prompts import PromptTemplate
 
 from pydantic import BaseModel
 
@@ -27,6 +24,7 @@ class LangchainGraphConfig(BaseModel):
     uri: str
     user: str
     password: str
+    openai_api_key: str = os.environ.get("OPENAI_API_KEY", "")
     model_name: str = "gpt-3.5-turbo"
     temperature: float = 0.0
 
@@ -38,6 +36,10 @@ class LangchainGraph:
     """
 
     def __init__(self, config: LangchainGraphConfig) -> None:
+        from langchain.graphs import Neo4jGraph
+        from langchain.chains import GraphCypherQAChain
+        from langchain_openai import ChatOpenAI
+
         self.config = config
         # Initialize Neo4jGraph wrapper
         self._graph = Neo4jGraph(
@@ -49,6 +51,7 @@ class LangchainGraph:
         self.llm: BaseLLM = ChatOpenAI(
             model_name=self.config.model_name,
             temperature=self.config.temperature,
+            openai_api_key=self.config.openai_api_key,
         )
         # Set up QA chain with a custom prompt that instructs the LLM to
         # generate Cypher queries and answer based on the query results.
@@ -57,14 +60,24 @@ class LangchainGraph:
             "Given the user's question and the graph schema, generate a Cypher query to retrieve "
             "relevant information. Then provide a concise and factual answer based on the query result."
         )
-        self.qa_chain = GraphCypherQAChain.from_llm(
-            llm=self.llm,
-            graph=self._graph,
-            qa_prompt=PromptTemplate(
-                input_variables=["schema", "question", "result"],
-                template=prompt,
-            ),
-        )
+        if hasattr(GraphCypherQAChain, "from_llm"):
+            self.qa_chain = GraphCypherQAChain.from_llm(
+                llm=self.llm,
+                graph=self._graph,
+                qa_prompt=PromptTemplate(
+                    input_variables=["schema", "question", "result"],
+                    template=prompt,
+                ),
+            )
+        else:
+            self.qa_chain = GraphCypherQAChain(
+                llm=self.llm,
+                graph=self._graph,
+                qa_prompt=PromptTemplate(
+                    input_variables=["schema", "question", "result"],
+                    template=prompt,
+                ),
+            )
 
     @property
     def graph(self) -> Neo4jGraph:

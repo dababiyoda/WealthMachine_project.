@@ -13,8 +13,16 @@ def sanitize_input(data: Union[str, Dict[str, Any]]) -> Union[str, Dict[str, Any
     Handles strings and dictionaries recursively.
     """
     if isinstance(data, str):
-        # Remove HTML tags
-        cleaned = re.sub(r'<[^>]*>', '', data)
+        # Strip <script> tags while preserving their inner text
+        without_scripts = re.sub(
+            r"<script.*?>(.*?)</script>",
+            r"\1",
+            data,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+
+        # Remove any remaining HTML tags
+        cleaned = re.sub(r"<[^>]*>", "", without_scripts)
         return cleaned
     elif isinstance(data, dict):
         return {k: sanitize_input(v) for k, v in data.items()}
@@ -36,3 +44,13 @@ def verify_query(query: str, signature: str) -> bool:
     """
     expected_signature = sign_query(query)
     return hmac.compare_digest(expected_signature, signature)
+
+
+def sign_graph_query(query: str) -> str:
+    """Wrapper for signing graph (Cypher) queries."""
+    return sign_query(query)
+
+
+def verify_graph_query(query: str, signature: str) -> bool:
+    """Wrapper for verifying graph query signatures."""
+    return verify_query(query, signature)
