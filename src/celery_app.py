@@ -57,7 +57,9 @@ def run_data_processing_agent() -> None:
 @celery_app.task(name="agents.run_compliance")
 def run_compliance_agent() -> None:
     """Celery task to run the compliance agent once."""
-    context = _get_defXault_context()
+    context = _get_default_context()
+    agent = ComplianceAgent(context)
+    asyncio.run(agent.run())
 @celery_app.task(name="agents.run_financial")
 def run_financial_agent() -> None:
     """Celery task to run the financial agent once."""
@@ -70,6 +72,7 @@ def run_growth_agent() -> None:
     """Celery task to run the growth agent once."""
     context = _get_default_context()
     agent = GrowthAgent(context)
+    asyncio.run(agent.run())
 
             
 @celery_app.task(name="agents.run_meta")
@@ -88,7 +91,7 @@ def run_all_agents() -> None:
     run_data_processing_agent.delay()
     run_financial_agent.delay()
     run_growth_agent.delay()
-        run_compliance_agent.delay()
+    run_compliance_agent.delay()
     run_meta_agent.delay()
 
-    run_compliance_agent.delay()
+
