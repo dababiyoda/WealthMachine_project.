@@ -18,7 +18,8 @@ def test_langchain_graph_config_instantiation():
 
 
 def test_langchain_graph_initialization(monkeypatch):
-    # Monkeypatch LangChain components to avoid actual initialization
+    """Initialize LangchainGraph with patched dependencies."""
+
     class FakeNeo4jGraph:
         def __init__(self, *args, **kwargs):
             pass
@@ -31,10 +32,21 @@ def test_langchain_graph_initialization(monkeypatch):
         def __init__(self, *args, **kwargs):
             pass
 
-    # Monkeypatch the imported classes
-    monkeypatch.setattr("langchain.graphs.Neo4jGraph", FakeNeo4jGraph, raising=False)
-    monkeypatch.setattr("langchain.chains.GraphCypherQAChain", FakeQAChain, raising=False)
-    monkeypatch.setattr("langchain_openai.ChatOpenAI", FakeChatOpenAI, raising=False)
+    # Provide stub modules so importing langchain components does not fail
+    import types, sys
+    fake_graphs = types.ModuleType("langchain.graphs")
+    fake_chains = types.ModuleType("langchain.chains")
+    fake_prompts = types.ModuleType("langchain.prompts")
+    fake_openai = types.ModuleType("langchain_openai")
+    sys.modules.setdefault("langchain.graphs", fake_graphs)
+    sys.modules.setdefault("langchain.chains", fake_chains)
+    sys.modules.setdefault("langchain.prompts", fake_prompts)
+    sys.modules.setdefault("langchain_openai", fake_openai)
+
+    monkeypatch.setattr(fake_graphs, "Neo4jGraph", FakeNeo4jGraph, raising=False)
+    monkeypatch.setattr(fake_chains, "GraphCypherQAChain", FakeQAChain, raising=False)
+    monkeypatch.setattr(fake_prompts, "PromptTemplate", lambda **kwargs: None, raising=False)
+    monkeypatch.setattr(fake_openai, "ChatOpenAI", FakeChatOpenAI, raising=False)
 
     config = LangchainGraphConfig(
         uri="bolt://localhost:7687",

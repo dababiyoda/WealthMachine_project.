@@ -3,8 +3,9 @@ from __future__ import annotations
 import os
 from typing import Any, Dict
 
-from langchain.llms.base import BaseLLM
-from langchain.prompts import PromptTemplate
+# Imported lazily in __init__ to avoid heavy dependencies during module import
+BaseLLM = Any  # type: ignore
+PromptTemplate = Any  # type: ignore
 
 from pydantic import BaseModel
 
@@ -39,6 +40,7 @@ class LangchainGraph:
         from langchain.graphs import Neo4jGraph
         from langchain.chains import GraphCypherQAChain
         from langchain_openai import ChatOpenAI
+        from langchain.prompts import PromptTemplate
 
         self.config = config
         # Initialize Neo4jGraph wrapper
