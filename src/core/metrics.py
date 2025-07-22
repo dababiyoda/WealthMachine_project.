@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from pathlib import Path
 from typing import Union
 import yaml
+import textwrap
 
 class SuccessMetrics(BaseModel):
     """
@@ -30,5 +31,7 @@ def load_success_metrics(file_path: Union[str, Path]) -> SuccessMetrics:
     """
     path = Path(file_path)
     with path.open("r", encoding="utf-8") as f:
-        data = yaml.safe_load(f)
+        raw = f.read()
+        normalized = "\n".join(line.lstrip() for line in raw.splitlines())
+        data = yaml.safe_load(normalized)
     return SuccessMetrics(**data)

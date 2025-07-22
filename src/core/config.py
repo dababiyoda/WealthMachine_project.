@@ -13,6 +13,16 @@ class BaseConfig(BaseModel):
         extra = "forbid"
 
     @classmethod
+    def from_yaml_or_json(cls, file_path: str) -> "BaseConfig":
+        """Load a single YAML or JSON config file."""
+        with open(file_path, "r", encoding="utf-8") as f:
+            if file_path.endswith((".yaml", ".yml")):
+                data: Dict[str, Any] = yaml.safe_load(f)
+            else:
+                data = json.load(f)
+        return cls(**data)
+
+    @classmethod
     def load(cls, path: str, name: Optional[str] = None) -> "BaseConfig":
         """
         Load a configuration file from a directory.  Supports `.json`, `.yaml`, `.yml`.
